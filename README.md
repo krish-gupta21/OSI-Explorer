@@ -1,4 +1,4 @@
-# 🌐 OSI Explorer — Interactive Network Security Reference
+# 🌐 OSI Explorer - Interactive Network Security Reference
 
 An interactive educational web application designed to help beginners and cybersecurity students understand the **OSI (Open Systems Interconnection) 7-Layer Model**.
 
