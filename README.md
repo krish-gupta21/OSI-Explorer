@@ -25,9 +25,9 @@ Experience the live application here:
 - **Step-by-Step Packet Journey**:
   - Follow real-world traffic flows: **HTTP Web**, **DNS Query**, **SMTP Email**, **SSH Shell**, **VoIP (SIP)**, and **Video Streaming**.
   - **3-Phase Visual Model**:
-    1. *Encapsulation (Sender L7 → L1)* — Watch headers wrap around payload data like nested envelopes.
-    2. *Physical Transmission* — Animated live data pulse traversing physical cables, fiber, or airwaves.
-    3. *Decapsulation (Receiver L1 → L7)* — Watch headers get verified and stripped to recover the original message.
+    1. *Encapsulation (Sender L7 → L1)* - Watch headers wrap around payload data like nested envelopes.
+    2. *Physical Transmission* - Animated live data pulse traversing physical cables, fiber, or airwaves.
+    3. *Decapsulation (Receiver L1 → L7)* - Watch headers get verified and stripped to recover the original message.
   - Bidirectional stepper navigation with `‹ Prev Step`, `Next Step ›`, and `↺ Reset`.
 
 - **Casual Quiz & Knowledge Checks**:
