@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OSI Explorer — Network Security Reference</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ══════════════════════════════════════
+       CSS VARIABLES — DARK / LIGHT
+    ══════════════════════════════════════ */
+    :root {
+      --bg:          #060a10;
+      --bg2:         #0c1220;
+      --bg3:         #111827;
+      --bg4:         #1a2235;
+      --border:      rgba(99,179,237,0.10);
+      --border2:     rgba(99,179,237,0.20);
+      --text:        #e2e8f0;
+      --text2:       #64748b;
+      --text3:       #38bdf8;
+      --accent:      #38bdf8;
+      --accent2:     #818cf8;
+      --glow:        rgba(56,189,248,0.15);
+      --radius:      14px;
+      --radius-sm:   9px;
+      --t:           0.22s ease;
+      --font-mono:   'JetBrains Mono', 'Fira Code', monospace;
+      --font:        'Inter', system-ui, sans-serif;
+    }
+    [data-theme="light"] {
+      --bg:          #f1f5f9;
+      --bg2:         #ffffff;
+      --bg3:         #f8fafc;
+      --bg4:         #e2e8f0;
+      --border:      rgba(30,64,175,0.10);
+      --border2:     rgba(30,64,175,0.22);
+      --text:        #0f172a;
+      --text2:       #475569;
+      --text3:       #1d4ed8;
+      --accent:      #1d4ed8;
+      --accent2:     #7c3aed;
+      --glow:        rgba(29,78,216,0.10);
+    }
+
+    /* ══════════════════════════════════════
+       RESET & BASE
+    ══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14.5px;
+      line-height: 1.65;
+      min-height: 100vh;
+      transition: background var(--t), color var(--t);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Dot-grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(56,189,248,0.07) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    [data-theme="light"] body::before {
+      background-image: radial-gradient(circle, rgba(29,78,216,0.06) 1px, transparent 1px);
+    }
+
+    /* Ambient top glow */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(56,189,248,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ══════════════════════════════════════
+       HEADER
+    ══════════════════════════════════════ */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(6,10,16,0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border2);
+    }
+    [data-theme="light"] header {
+      background: rgba(255,255,255,0.88);
+    }
+    .header-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Logo */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+    .logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #818cf8 100%);
+      padding: 6px 12px 6px 8px;
+      border-radius: 8px;
+    }
+    .logo-icon { font-size: 15px; }
+    .logo-text { color: #fff; font-size: 13.5px; font-weight: 700; letter-spacing: 0.01em; }
+    .logo-sub { color: var(--text2); font-size: 11.5px; font-family: var(--font-mono); letter-spacing: 0.05em; }
+
+    /* Nav tabs */
+    nav { display: flex; gap: 2px; }
+    .tab-btn {
+      padding: 7px 18px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font);
+      letter-spacing: 0.01em;
+      transition: all var(--t);
+    }
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--bg4);
+      border-color: var(--border);
+    }
+    .tab-btn.active {
+      color: var(--accent);
+      background: rgba(56,189,248,0.08);
+      border-color: rgba(56,189,248,0.25);
+    }
+    [data-theme="light"] .tab-btn.active {
+      color: var(--accent);
+      background: rgba(29,78,216,0.07);
+      border-color: rgba(29,78,216,0.20);
+    }
+
+    /* Header right */
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .theme-btn {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      background: var(--bg3);
+      color: var(--text2);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      transition: all var(--t);
+    }
+    .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ══════════════════════════════════════
+       MAIN
+    ══════════════════════════════════════ */
+    main {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 2.2rem 1.5rem 4rem;
+      position: relative;
+      z-index: 1;
+    }
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
+    .hero {
+      text-align: center;
+      padding: 1.5rem 0 2.8rem;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid rgba(56,189,248,0.25);
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(56,189,248,0.06);
+      margin-bottom: 1rem;
+    }
+    .hero-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; animation: blink 1.5s infinite; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .hero h1 {
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 60%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    [data-theme="light"] .hero h1 {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1d4ed8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      color: var(--text2);
+      font-size: 0.95rem;
+      max-width: 460px;
+      margin: 0 auto 1.8rem;
+    }
+
+    /* ── Mnemonic Section ── */
+    .mnemonic-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .mnemonic-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .mnemo-tab {
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: all var(--t);
+    }
+    .mnemo-tab:hover { color: var(--text); background: var(--bg4); }
+    .mnemo-tab.active { color: var(--accent); background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.30); }
+
+    .mnemonic-card {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 700px;
+    }
+    .mnemonic-card.active { display: flex; animation: fadeIn 0.2s ease; }
+    .mnemo-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mnemo-label span { color: var(--accent); }
+    .mnemonic-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .mnemo-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 13px;
+      transition: all var(--t);
+      cursor: default;
+    }
+    .mnemo-pill:hover {
+      border-color: var(--layer-color, var(--accent));
+      background: rgba(56,189,248,0.05);
+      transform: translateY(-1px);
+    }
+    .mnemo-first {
+      font-weight: 800;
+      font-size: 15px;
+      font-family: var(--font-mono);
+    }
+    .mnemo-rest { color: var(--text2); }
+    .mnemo-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text2);
+      opacity: 0.7;
+    }
+
+    /* ══════════════════════════════════════
+       OSI STACK — EXPLORER
+    ══════════════════════════════════════ */
+    .osi-stack { display: flex; flex-direction: column; gap: 6px; }
+
+    .layer-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color var(--t), box-shadow var(--t);
+      position: relative;
+    }
+    /* Left accent bar */
+    .layer-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--layer-color);
+      opacity: 0.6;
+      transition: opacity var(--t);
+    }
+    .layer-card:hover::before { opacity: 1; }
+    .layer-card:hover {
+      border-color: var(--layer-color);
+      box-shadow: 0 0 0 1px var(--layer-color) inset, 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .layer-card.open {
+      border-color: var(--layer-color);
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+    .layer-card.open::before { opacity: 1; }
+
+    .layer-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 18px 13px 22px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .layer-num {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      background: var(--layer-color);
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      font-family: var(--font-mono);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(0,0,0,0.4);
+    }
+
+    .layer-info { flex: 1; min-width: 0; }
+    .layer-name {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .layer-name .l-layer-word {
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--text2);
+      font-family: var(--font-mono);
+    }
+    .layer-tagline { color: var(--text2); font-size: 12.5px; margin-top: 1px; }
+
+    .layer-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .pdu-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      border: 1px solid var(--layer-color);
+      color: var(--layer-color);
+      background: rgba(0,0,0,0.2);
+      white-space: nowrap;
+    }
+    .layer-chevron {
+      color: var(--text2);
+      font-size: 10px;
+      transition: transform var(--t);
+    }
+    .layer-card.open .layer-chevron { transform: rotate(180deg); color: var(--layer-color); }
+
+    /* ── Detail Panel ── */
+    .layer-detail { max-height: 0; overflow: hidden; transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1); }
+    .layer-card.open .layer-detail { max-height: 2400px; }
+
+    .layer-detail-inner {
+      padding: 0 18px 20px 22px;
+      border-top: 1px solid var(--border);
+    }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    .layer-card.open .layer-detail-inner { animation: slideDown 0.3s ease; }
+
+    .desc-text {
+      color: var(--text2);
+      font-size: 13.5px;
+      margin: 14px 0 12px;
+      line-height: 1.7;
+    }
+
+    .analogy-box {
+      display: flex;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--layer-color);
+      border-radius: 0 9px 9px 0;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .analogy-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+    .analogy-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--layer-color);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    /* Detail Tabs */
+    .detail-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 4px;
+      margin-bottom: 14px;
+    }
+    .dtab-btn {
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: var(--font);
+      transition: all var(--t);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .dtab-btn:hover { color: var(--text); background: var(--bg4); }
+    .dtab-btn.active { background: var(--layer-color); color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+
+    .dtab-panel { display: none; }
+    .dtab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+
+    /* Protocol Grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+      gap: 8px;
+    }
+    .info-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 13px;
+      transition: all var(--t);
+    }
+    .info-item:hover { border-color: var(--layer-color); transform: translateY(-1px); }
+    .info-item-title {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 3px;
+      color: var(--layer-color);
+    }
+    .info-item-desc { color: var(--text2); font-size: 12.5px; }
+
+    /* Device Grid */
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+      gap: 8px;
+    }
+    .device-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 14px;
+      text-align: center;
+      transition: all var(--t);
+      position: relative;
+      overflow: hidden;
+    }
+    .device-item::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--layer-color);
+      opacity: 0;
+      transition: opacity var(--t);
+    }
+    .device-item:hover { border-color: var(--layer-color); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+    .device-item:hover::after { opacity: 1; }
+    .device-icon-large { font-size: 26px; margin-bottom: 8px; }
+    .device-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+    .device-desc { color: var(--text2); font-size: 11.5px; line-height: 1.5; }
+
+    /* Attack Items */
+    .threat-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      transition: border-color var(--t);
+    }
+    .threat-item:hover { border-color: rgba(231,76,60,0.35); }
+    .threat-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+    .threat-name { font-weight: 700; font-size: 13.5px; font-family: var(--font-mono); }
+    .severity-badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .severity-critical { background: rgba(231,76,60,0.15); color: #ef4444; border: 1px solid rgba(231,76,60,0.3); }
+    .severity-high     { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+    .severity-medium   { background: rgba(234,179,8,0.12);  color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+
+    /* Defense Items */
+    .defense-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex; gap: 10px; align-items: flex-start;
+      transition: border-color var(--t);
+    }
+    .defense-item:hover { border-color: rgba(46,204,113,0.35); }
+    .defense-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .defense-name { font-weight: 700; font-size: 13.5px; font-family: var(--font-mono); margin-bottom: 3px; }
+
+    /* ══════════════════════════════════════
+       PACKET JOURNEY
+    ══════════════════════════════════════ */
+    .journey-header { margin-bottom: 1.2rem; }
+    .journey-header h2 { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 4px; }
+    .journey-header p { color: var(--text2); font-size: 13.5px; }
+
+    /* Phase Tracker */
+    .phase-tracker {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1.2rem;
+    }
+    .phase-step {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      color: var(--text2);
+      background: transparent;
+      border-right: 1px solid var(--border);
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    .phase-step:last-child { border-right: none; }
+    .phase-step .ph-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .phase-step.active {
+      background: var(--ph-color, rgba(56,189,248,0.08));
+      color: var(--text);
+    }
+    .phase-step.active .ph-num {
+      border-color: var(--ph-color-solid, #38bdf8);
+      color: var(--ph-color-solid, #38bdf8);
+      background: rgba(56,189,248,0.12);
+    }
+    .phase-step.done { opacity: 0.45; }
+    .phase-step.done .ph-num {
+      background: rgba(34,197,94,0.15);
+      border-color: #22c55e;
+      color: #22c55e;
+    }
+
+    /* Controls row */
+    .journey-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .select-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .traffic-select {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-family: var(--font);
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--t);
+    }
+    .traffic-select:focus { border-color: var(--accent); }
+    .step-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: all var(--t);
+      user-select: none;
+    }
+    .step-nav-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--bg4);
+    }
+    .step-nav-btn.primary {
+      background: linear-gradient(135deg, #0ea5e9, #818cf8);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 18px rgba(14,165,233,0.25);
+    }
+    .step-nav-btn.primary:hover:not(:disabled) {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(14,165,233,0.38);
+      color: #fff;
+    }
+    .step-nav-btn.reset {
+      color: var(--text2);
+      padding: 9px 14px;
+    }
+    .step-nav-btn.reset:hover:not(:disabled) {
+      color: #ef4444;
+      border-color: rgba(239,68,68,0.4);
+    }
+    .step-nav-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    .step-indicator {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      padding: 8px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      white-space: nowrap;
+    }
+
+    /* Journey scene */
+    .journey-scene {
+      display: grid;
+      grid-template-columns: 1fr 90px 1fr;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.4);
+    }
+    .journey-side {
+      padding: 12px 10px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .journey-side-title {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 7px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      margin-bottom: 4px;
+      color: var(--text2);
+    }
+    .journey-layer-row {
+      padding: 8px 10px;
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+      min-height: 48px;
+      display: flex; flex-direction: column; justify-content: center;
+      cursor: default;
+    }
+    .journey-layer-row .layer-label {
+      display: flex; align-items: center; gap: 5px;
+      font-family: var(--font-mono); font-size: 11px;
+    }
+    .journey-layer-row .layer-add {
+      font-size: 10px; color: var(--text2);
+      margin-top: 2px; font-weight: 400; line-height: 1.3;
+    }
+    .journey-layer-row.active {
+      border-color: var(--layer-color);
+      background: var(--layer-color-bg);
+      box-shadow: 0 0 0 1px var(--layer-color) inset, 0 4px 16px rgba(0,0,0,0.35);
+      transform: scaleX(1.03);
+    }
+    .journey-layer-row.done { opacity: 0.38; }
+
+    /* Journey middle wire */
+    .journey-middle {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      background: var(--bg3);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+    .journey-mid-label {
+      writing-mode: vertical-rl;
+      font-size: 9px; font-weight: 700; font-family: var(--font-mono);
+      color: var(--text2); letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .journey-wire {
+      flex: 1; width: 2px;
+      background: linear-gradient(to bottom, var(--border2), var(--border));
+      margin: 8px 0; position: relative;
+    }
+    .packet-dot {
+      position: absolute;
+      width: 14px; height: 14px;
+      background: radial-gradient(circle, #38bdf8, #818cf8);
+      border-radius: 50%;
+      left: 50%; transform: translateX(-50%);
+      box-shadow: 0 0 16px rgba(56,189,248,0.9), 0 0 6px rgba(56,189,248,0.5);
+      top: -7px; display: none; z-index: 5;
+    }
+
+    /* ── Rich Detail Panel ── */
+    .detail-panel {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .detail-card {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      min-height: 120px;
+      transition: all 0.3s ease;
+    }
+    .detail-card.main-card {
+      grid-column: span 2;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .detail-card-icon {
+      font-size: 2rem;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .detail-card-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-bottom: 5px;
+    }
+    .detail-card-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .detail-card-body {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.65;
+    }
+    .detail-card-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .detail-card-label::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--dp-color, var(--accent));
+      display: inline-block;
+    }
+
+    /* Header stack (encapsulation visual) */
+    .header-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .header-block {
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header-block.current {
+      animation: blockPulse 1.5s ease infinite;
+    }
+    @keyframes blockPulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* PDU badge row */
+    .pdu-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .pdu-flow-item {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 12px; font-family: var(--font-mono); font-weight: 600;
+      padding: 4px 9px; border-radius: 5px;
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      transition: all 0.3s ease;
+    }
+    .pdu-flow-item.active {
+      background: var(--dp-color-bg, rgba(56,189,248,0.1));
+      border-color: var(--dp-color, var(--accent));
+      color: var(--dp-color, var(--accent));
+    }
+    .pdu-arrow { color: var(--text2); font-size: 10px; }
+
+    /* Phase complete banner */
+    .phase-complete {
+      display: none;
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 10px;
+      padding: 14px 18px;
+      text-align: center;
+      font-weight: 700;
+      color: #22c55e;
+      font-size: 14px;
+      margin-top: 10px;
+      animation: fadeIn 0.3s ease;
+    }
+    .phase-complete.show { display: block; }
+
+    /* ══════════════════════════════════════
+       QUIZ
+    ══════════════════════════════════════ */
+    .quiz-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .quiz-header h2 {
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+    .quiz-filter {
+      display: flex; gap: 5px; flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border2);
+      background: var(--bg3);
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 11.5px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      transition: all var(--t);
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    [data-theme="light"] .filter-btn.active { color: #fff; }
+
+    .quiz-card {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 2rem;
+      max-width: 700px;
+      margin: 0 auto;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.35);
+    }
+
+    .quiz-progress { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+    .quiz-progress-bar { flex: 1; height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+    .quiz-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0ea5e9, #818cf8);
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+    .quiz-counter { color: var(--text2); font-size: 12px; font-family: var(--font-mono); white-space: nowrap; }
+
+    .quiz-layer-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 11px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      margin-bottom: 14px;
+      color: #fff;
+    }
+    .quiz-question {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.55;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.4rem;
+    }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option {
+      padding: 12px 16px;
+      border-radius: 9px;
+      border: 1px solid var(--border2);
+      background: var(--bg3);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13.5px;
+      font-family: var(--font);
+      text-align: left;
+      transition: all var(--t);
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .quiz-option .opt-letter {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text2);
+      min-width: 18px;
+      margin-top: 2px;
+    }
+    .quiz-option:hover:not(:disabled) { border-color: var(--accent); background: var(--glow); color: var(--text); }
+    .quiz-option.correct { border-color: #22c55e; background: rgba(34,197,94,0.1); }
+    .quiz-option.correct .opt-letter { color: #22c55e; }
+    .quiz-option.wrong   { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+    .quiz-option.wrong .opt-letter   { color: #ef4444; }
+    .quiz-option:disabled { cursor: default; }
+
+    .quiz-explanation {
+      margin-top: 1rem;
+      padding: 13px 15px;
+      background: var(--bg3);
+      border-radius: 9px;
+      border-left: 3px solid #22c55e;
+      font-size: 13px;
+      line-height: 1.6;
+      display: none;
+      color: var(--text2);
+    }
+    .quiz-explanation.show { display: block; animation: fadeIn 0.2s ease; }
+    .quiz-explanation.wrong-exp { border-left-color: #ef4444; }
+    .exp-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #22c55e;
+      margin-bottom: 5px;
+    }
+    .quiz-explanation.wrong-exp .exp-label { color: #ef4444; }
+
+    .quiz-next-btn {
+      margin-top: 1.2rem; width: 100%; padding: 11px;
+      background: linear-gradient(135deg, #0ea5e9, #818cf8);
+      color: #fff; border: none; border-radius: 9px;
+      font-size: 14px; font-weight: 700; font-family: var(--font);
+      cursor: pointer; transition: opacity var(--t);
+      display: none;
+    }
+    .quiz-next-btn:hover { opacity: 0.88; }
+    .quiz-next-btn.show { display: block; animation: fadeIn 0.25s ease; }
+
+    /* Score Screen */
+    .quiz-score { text-align: center; padding: 2rem 1rem; }
+    .score-emoji { font-size: 3.5rem; margin-bottom: 1rem; }
+    .score-number {
+      font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; margin-bottom: 0.3rem;
+      background: linear-gradient(135deg, #0ea5e9, #818cf8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .score-label { color: var(--text2); font-family: var(--font-mono); font-size: 13px; margin-bottom: 1rem; }
+    .score-message { font-size: 1.05rem; font-weight: 700; margin-bottom: 2rem; }
+    .restart-btn {
+      padding: 11px 30px;
+      background: linear-gradient(135deg, #0ea5e9, #818cf8);
+      color: #fff; border: none; border-radius: 9px;
+      font-size: 14px; font-weight: 700; font-family: var(--font);
+      cursor: pointer; transition: opacity var(--t);
+      box-shadow: 0 4px 20px rgba(14,165,233,0.3);
+    }
+    .restart-btn:hover { opacity: 0.85; }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 700px) {
+      .header-inner { height: auto; padding: 10px 1rem; flex-wrap: wrap; }
+      .logo-sub { display: none; }
+      nav { order: 3; width: 100%; justify-content: center; }
+      .hero h1 { font-size: 1.7rem; }
+      main { padding: 1.2rem 1rem 3rem; }
+      .journey-scene { grid-template-columns: 1fr 55px 1fr; }
+      .journey-mid-label { display: none; }
+      .quiz-card { padding: 1.2rem; }
+      .mnemonic-pills { gap: 4px; }
+      .mnemo-pill { padding: 5px 9px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-badge">
+        <div class="logo-icon">🛡️</div>
+        <div class="logo-text">OSI Explorer</div>
+      </div>
+      <div class="logo-sub">v2.0 // network reference</div>
+    </div>
+    <nav id="mainNav">
+      <button class="tab-btn active" data-view="explorer">⬡ Explorer</button>
+      <button class="tab-btn" data-view="journey">⤑ Packet Journey</button>
+      <button class="tab-btn" data-view="quiz">◈ Quiz</button>
+    </nav>
+    <div class="header-right">
+      <button class="theme-btn" id="themeToggle" title="Toggle theme">🌙</button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main>
+
+  <!-- ══════ EXPLORER VIEW ══════ -->
+  <div class="view active" id="view-explorer">
+
+    <div class="hero">
+      <div class="hero-eyebrow">OSI Reference Model // 7 Layers</div>
+      <h1>Open Systems Interconnection</h1>
+      <p>Click any layer to explore protocols, devices, attack vectors, and defenses — from beginner to intermediate depth.</p>
+
+      <!-- Dual Mnemonic Section -->
+      <div class="mnemonic-section">
+        <div class="mnemonic-toggle-row">
+          <span>Mnemonic:</span>
+          <button class="mnemo-tab active" data-mnemo="topdown">↓ Top → Down</button>
+          <button class="mnemo-tab" data-mnemo="bottomup">↑ Bottom → Up</button>
+        </div>
+
+        <!-- Top-Down: L7 → L1 "All People Seem To Need Data Processing" -->
+        <div class="mnemonic-card active" id="mnemo-topdown">
+          <div class="mnemo-label">Layer 7 → 1 &nbsp;·&nbsp; <span>"All People Seem To Need Data Processing"</span></div>
+          <div class="mnemonic-pills">
+            <div class="mnemo-pill" style="--layer-color:#E74C3C" title="Layer 7 – Application">
+              <span class="mnemo-first" style="color:#E74C3C">A</span><span class="mnemo-rest">ll</span>
+              <span class="mnemo-num">L7</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#E67E22" title="Layer 6 – Presentation">
+              <span class="mnemo-first" style="color:#E67E22">P</span><span class="mnemo-rest">eople</span>
+              <span class="mnemo-num">L6</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#F1C40F" title="Layer 5 – Session">
+              <span class="mnemo-first" style="color:#F1C40F">S</span><span class="mnemo-rest">eem</span>
+              <span class="mnemo-num">L5</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#2ECC71" title="Layer 4 – Transport">
+              <span class="mnemo-first" style="color:#2ECC71">T</span><span class="mnemo-rest">o</span>
+              <span class="mnemo-num">L4</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#3498DB" title="Layer 3 – Network">
+              <span class="mnemo-first" style="color:#3498DB">N</span><span class="mnemo-rest">eed</span>
+              <span class="mnemo-num">L3</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#9B59B6" title="Layer 2 – Data Link">
+              <span class="mnemo-first" style="color:#9B59B6">D</span><span class="mnemo-rest">ata</span>
+              <span class="mnemo-num">L2</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#7F8C8D" title="Layer 1 – Physical">
+              <span class="mnemo-first" style="color:#7F8C8D">P</span><span class="mnemo-rest">rocessing</span>
+              <span class="mnemo-num">L1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom-Up: L1 → L7 "Please Do Not Throw Sausage Pizza Away" -->
+        <div class="mnemonic-card" id="mnemo-bottomup">
+          <div class="mnemo-label">Layer 1 → 7 &nbsp;·&nbsp; <span>"Please Do Not Throw Sausage Pizza Away"</span></div>
+          <div class="mnemonic-pills">
+            <div class="mnemo-pill" style="--layer-color:#7F8C8D" title="Layer 1 – Physical">
+              <span class="mnemo-first" style="color:#7F8C8D">P</span><span class="mnemo-rest">lease</span>
+              <span class="mnemo-num">L1</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#9B59B6" title="Layer 2 – Data Link">
+              <span class="mnemo-first" style="color:#9B59B6">D</span><span class="mnemo-rest">o</span>
+              <span class="mnemo-num">L2</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#3498DB" title="Layer 3 – Network">
+              <span class="mnemo-first" style="color:#3498DB">N</span><span class="mnemo-rest">ot</span>
+              <span class="mnemo-num">L3</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#2ECC71" title="Layer 4 – Transport">
+              <span class="mnemo-first" style="color:#2ECC71">T</span><span class="mnemo-rest">hrow</span>
+              <span class="mnemo-num">L4</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#F1C40F" title="Layer 5 – Session">
+              <span class="mnemo-first" style="color:#F1C40F">S</span><span class="mnemo-rest">ausage</span>
+              <span class="mnemo-num">L5</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#E67E22" title="Layer 6 – Presentation">
+              <span class="mnemo-first" style="color:#E67E22">P</span><span class="mnemo-rest">izza</span>
+              <span class="mnemo-num">L6</span>
+            </div>
+            <div class="mnemo-pill" style="--layer-color:#E74C3C" title="Layer 7 – Application">
+              <span class="mnemo-first" style="color:#E74C3C">A</span><span class="mnemo-rest">way</span>
+              <span class="mnemo-num">L7</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="osi-stack" id="osiStack"></div>
+  </div>
+
+  <!-- ══════ PACKET JOURNEY VIEW ══════ -->
+  <div class="view" id="view-journey">
+    <div class="journey-header">
+      <h2>⤑ Packet Journey</h2>
+      <p>Follow data as it travels through every OSI layer — step by step, with full explanations at each stage.</p>
+    </div>
+
+    <!-- Phase Tracker -->
+    <div class="phase-tracker" id="phaseTracker">
+      <div class="phase-step" id="phase1"
+           style="--ph-color:rgba(56,189,248,0.08);--ph-color-solid:#38bdf8">
+        <div class="ph-num">1</div>
+        <span>Encapsulation<br><small style="font-weight:400;opacity:.7">Sender L7→L1</small></span>
+      </div>
+      <div class="phase-step" id="phase2"
+           style="--ph-color:rgba(129,140,248,0.08);--ph-color-solid:#818cf8">
+        <div class="ph-num">2</div>
+        <span>Transmission<br><small style="font-weight:400;opacity:.7">Physical Medium</small></span>
+      </div>
+      <div class="phase-step" id="phase3"
+           style="--ph-color:rgba(34,197,94,0.08);--ph-color-solid:#22c55e">
+        <div class="ph-num">3</div>
+        <span>Decapsulation<br><small style="font-weight:400;opacity:.7">Receiver L1→L7</small></span>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="journey-controls">
+      <span class="select-label">Traffic:</span>
+      <select class="traffic-select" id="trafficSelect">
+        <option value="http">🌐 HTTP Web Request</option>
+        <option value="dns">🔍 DNS Query</option>
+        <option value="email">📧 Email (SMTP)</option>
+        <option value="ssh">🔒 SSH Connection</option>
+        <option value="voip">📞 VoIP Call (SIP)</option>
+        <option value="video">📹 Video Stream</option>
+      </select>
+
+      <button class="step-nav-btn" id="stepPrevBtn" disabled>‹ Prev Step</button>
+      <span class="step-indicator" id="stepIndicator">Step 0 / 15 (Intro)</span>
+      <button class="step-nav-btn primary" id="stepNextBtn">Next Step ›</button>
+      <button class="step-nav-btn reset" id="stepResetBtn" title="Reset journey to start">↺ Reset</button>
+    </div>
+
+    <!-- Scene -->
+    <div class="journey-scene">
+      <div class="journey-side" id="senderStack">
+        <div class="journey-side-title">// SENDER — Encapsulation ↓</div>
+      </div>
+      <div class="journey-middle">
+        <div class="journey-mid-label" style="margin-top:6px">Medium</div>
+        <div class="journey-wire" id="wireTop">
+          <div class="packet-dot" id="dotDown"></div>
+        </div>
+        <div style="font-size:18px;text-align:center;color:var(--text2)">⇅</div>
+        <div class="journey-wire" id="wireBottom">
+          <div class="packet-dot" id="dotUp"></div>
+        </div>
+        <div class="journey-mid-label" style="margin-bottom:6px">Medium</div>
+      </div>
+      <div class="journey-side" id="receiverStack">
+        <div class="journey-side-title">// RECEIVER — Decapsulation ↑</div>
+      </div>
+    </div>
+
+    <!-- Rich Detail Panel -->
+    <div class="detail-panel" id="detailPanel">
+
+      <!-- Main: What's happening right now -->
+      <div class="detail-card main-card" id="dpMain">
+        <div class="detail-card-icon" id="dpIcon">💤</div>
+        <div style="flex:1">
+          <div class="detail-card-eyebrow" id="dpEyebrow">STATUS</div>
+          <div class="detail-card-title" id="dpTitle">Ready to Start</div>
+          <div class="detail-card-body" id="dpBody">
+            Select a traffic type, pick a mode, and click <strong>Start</strong> to begin.<br>
+            <strong>Auto mode</strong> advances automatically — <strong>Step-by-Step</strong> lets you read at your own pace.
+          </div>
+        </div>
+      </div>
+
+      <!-- PDU Tracker -->
+      <div class="detail-card" id="dpPDU">
+        <div class="detail-card-label" id="dpPDULabel" style="--dp-color:#38bdf8">PDU at this Layer</div>
+        <div class="pdu-row" id="dpPDURow">
+          <div class="pdu-flow-item">Data</div>
+          <div class="pdu-arrow">›</div>
+          <div class="pdu-flow-item">Segment</div>
+          <div class="pdu-arrow">›</div>
+          <div class="pdu-flow-item">Packet</div>
+          <div class="pdu-arrow">›</div>
+          <div class="pdu-flow-item">Frame</div>
+          <div class="pdu-arrow">›</div>
+          <div class="pdu-flow-item">Bits</div>
+        </div>
+      </div>
+
+      <!-- Header stack visualizer -->
+      <div class="detail-card" id="dpStack">
+        <div class="detail-card-label" id="dpStackLabel" style="--dp-color:#818cf8">Packet Structure</div>
+        <div class="header-stack" id="dpHeaderStack">
+          <div class="header-block" style="background:rgba(127,140,141,0.12);border-color:rgba(127,140,141,0.3);color:#7F8C8D">
+            [ Original Data / Payload ]
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="phase-complete" id="phaseComplete"></div>
+  </div>
+
+
+  <!-- ══════ QUIZ VIEW ══════ -->
+  <div class="view" id="view-quiz">
+    <div class="quiz-header">
+      <div>
+        <h2>◈ Layer Quiz</h2>
+        <p style="color:var(--text2);font-size:13px;margin-top:4px">Test your OSI knowledge — casual Q&A with explanations.</p>
+      </div>
+      <div class="quiz-filter" id="quizFilter">
+        <button class="filter-btn active" data-layer="all">ALL</button>
+        <button class="filter-btn" data-layer="7" style="--accent:#E74C3C">L7</button>
+        <button class="filter-btn" data-layer="6" style="--accent:#E67E22">L6</button>
+        <button class="filter-btn" data-layer="5" style="--accent:#F1C40F">L5</button>
+        <button class="filter-btn" data-layer="4" style="--accent:#2ECC71">L4</button>
+        <button class="filter-btn" data-layer="3" style="--accent:#3498DB">L3</button>
+        <button class="filter-btn" data-layer="2" style="--accent:#9B59B6">L2</button>
+        <button class="filter-btn" data-layer="1" style="--accent:#7F8C8D">L1</button>
+      </div>
+    </div>
+    <div class="quiz-card" id="quizCard"></div>
+  </div>
+
+</main>
+
+<script src="data.js"></script>
+<script>
+// ─────────────────────────────────────────
+// THEME TOGGLE
+// ─────────────────────────────────────────
+const themeBtn = document.getElementById('themeToggle');
+let isDark = true;
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  themeBtn.textContent = isDark ? '🌙' : '☀️';
+}
+themeBtn.addEventListener('click', () => { isDark = !isDark; applyTheme(); });
+applyTheme();
+
+// ─────────────────────────────────────────
+// TAB NAVIGATION
+// ─────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-' + btn.dataset.view).classList.add('active');
+  });
+});
+
+// ─────────────────────────────────────────
+// MNEMONIC TOGGLE
+// ─────────────────────────────────────────
+document.querySelectorAll('.mnemo-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mnemo-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mnemonic-card').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('mnemo-' + btn.dataset.mnemo).classList.add('active');
+  });
+});
+
+// ─────────────────────────────────────────
+// EXPLORER — BUILD OSI STACK
+// ─────────────────────────────────────────
+function buildOSIStack() {
+  const stack = document.getElementById('osiStack');
+  OSI_LAYERS.forEach(layer => {
+    const card = document.createElement('div');
+    card.className = 'layer-card';
+    card.style.setProperty('--layer-color', layer.color);
+    card.style.setProperty('--layer-bg', layer.colorBg);
+
+    card.innerHTML = `
+      <div class="layer-header" onclick="toggleLayer(this)">
+        <div class="layer-num">${layer.id}</div>
+        <div class="layer-info">
+          <div class="layer-name">
+            ${layer.emoji} ${layer.name}
+            <span class="l-layer-word">// layer ${layer.id}</span>
+          </div>
+          <div class="layer-tagline">${layer.tagline}</div>
+        </div>
+        <div class="layer-right">
+          <div class="pdu-tag">PDU: ${layer.pdu.split(' ')[0]}</div>
+          <div class="layer-chevron">▼</div>
+        </div>
+      </div>
+      <div class="layer-detail">
+        <div class="layer-detail-inner">
+          <p class="desc-text">${layer.shortDesc}</p>
+          <div class="analogy-box">
+            <div class="analogy-icon">💡</div>
+            <div>
+              <div class="analogy-label">Real-World Analogy</div>
+              <div style="color:var(--text2);font-size:13px">${layer.analogy}</div>
+            </div>
+          </div>
+          <div class="detail-tabs" id="dtabs-${layer.id}">
+            <button class="dtab-btn active" onclick="switchDTab(${layer.id},'protocols',this)">📋 Protocols</button>
+            <button class="dtab-btn" onclick="switchDTab(${layer.id},'devices',this)">🖥️ Devices</button>
+            <button class="dtab-btn" onclick="switchDTab(${layer.id},'attacks',this)">⚡ Attacks</button>
+            <button class="dtab-btn" onclick="switchDTab(${layer.id},'defenses',this)">🛡️ Defenses</button>
+          </div>
+          <div class="dtab-panel active" id="dtab-${layer.id}-protocols">
+            <div class="info-grid">
+              ${layer.protocols.map(p => `
+                <div class="info-item" style="--layer-color:${layer.color}">
+                  <div class="info-item-title">${p.name}</div>
+                  <div class="info-item-desc">${p.desc}</div>
+                </div>`).join('')}
+            </div>
+          </div>
+          <div class="dtab-panel" id="dtab-${layer.id}-devices">
+            <div class="device-grid">
+              ${layer.devices.map(d => `
+                <div class="device-item" style="--layer-color:${layer.color}">
+                  <div class="device-icon-large">${d.icon}</div>
+                  <div class="device-name">${d.name}</div>
+                  <div class="device-desc">${d.desc}</div>
+                </div>`).join('')}
+            </div>
+          </div>
+          <div class="dtab-panel" id="dtab-${layer.id}-attacks">
+            ${layer.attacks.map(a => `
+              <div class="threat-item">
+                <div class="threat-header">
+                  <span class="threat-name">${a.name}</span>
+                  <span class="severity-badge severity-${a.severity}">${a.severity}</span>
+                </div>
+                <div style="color:var(--text2);font-size:12.5px">${a.desc}</div>
+              </div>`).join('')}
+          </div>
+          <div class="dtab-panel" id="dtab-${layer.id}-defenses">
+            ${layer.defenses.map(d => `
+              <div class="defense-item">
+                <div class="defense-icon">🛡️</div>
+                <div>
+                  <div class="defense-name">${d.name}</div>
+                  <div style="color:var(--text2);font-size:12.5px">${d.desc}</div>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    stack.appendChild(card);
+  });
+}
+
+function toggleLayer(header) {
+  const card = header.closest('.layer-card');
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.layer-card').forEach(c => c.classList.remove('open'));
+  if (!isOpen) { card.classList.add('open'); card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+}
+
+function switchDTab(layerId, tabName, btn) {
+  const container = btn.closest('.layer-detail-inner');
+  container.querySelectorAll('.dtab-btn').forEach(b => b.classList.remove('active'));
+  container.querySelectorAll('.dtab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`dtab-${layerId}-${tabName}`).classList.add('active');
+}
+
+buildOSIStack();
+
+// ─────────────────────────────────────────
+// PACKET JOURNEY — DATA
+// ─────────────────────────────────────────
+const TRAFFIC_INFO = {
+  http: {
+    name: "HTTP Web Request", icon: "🌐",
+    scenario: "Your browser wants to open <strong>google.com</strong>. Follow the HTTP request as it is packaged up, sent through the internet, and unpacked on the other side.",
+    steps: [
+      {
+        layer: 7,
+        action: "Creating the HTTP Request",
+        header: "HTTP Header",
+        headerContent: "GET /search?q=hello HTTP/1.1\nHost: google.com\nUser-Agent: Chrome/120",
+        pdu: "Data",
+        explanation: "The <strong>Application Layer</strong> creates the actual request using the HTTP protocol. Your browser formats what it needs — the URL, the method (GET), and who it is — into a standard message that both sides understand.",
+        whyItMatters: "Without this layer agreeing on a common language (HTTP), the browser and server wouldn't know how to ask for or deliver web pages."
+      },
+      {
+        layer: 6,
+        action: "Encrypting & Encoding the Data",
+        header: "TLS Record Header",
+        headerContent: "TLS 1.3 Handshake → AES-256-GCM\nContent-Type: Application Data",
+        pdu: "Data",
+        explanation: "The <strong>Presentation Layer</strong> encrypts the HTTP request using TLS 1.3 so no one can spy on it in transit. It also handles encoding — making sure the data is in a format both sides can read.",
+        whyItMatters: "This is why you see 🔒 in your browser. Without encryption here, anyone on the same network could read your passwords and private data."
+      },
+      {
+        layer: 5,
+        action: "Establishing a Session",
+        header: "Session Token",
+        headerContent: "TCP Session: SYN → SYN-ACK → ACK\nSession ID: 0xA3F2...",
+        pdu: "Data",
+        explanation: "The <strong>Session Layer</strong> manages the conversation between your browser and the server. It handles the TCP 3-way handshake — a 'Hello / Hello back / Got it!' exchange that establishes a reliable session before any data flows.",
+        whyItMatters: "Without session management, your request might go to the wrong server, or the connection could drop in the middle with no way to resume."
+      },
+      {
+        layer: 4,
+        action: "Segmenting into TCP Segments",
+        header: "TCP Header",
+        headerContent: "Src Port: 54231  Dst Port: 443\nSeq: 1001  Ack: 0\nFlags: SYN  Window: 65535",
+        pdu: "Segment",
+        explanation: "The <strong>Transport Layer</strong> breaks the data into manageable segments and attaches a TCP header with port numbers. Port 443 tells the receiver 'this is HTTPS traffic'. Sequence numbers ensure the segments arrive in the right order.",
+        whyItMatters: "Port numbers are like apartment numbers in a building — the IP address finds the building, but the port finds the exact tenant (application) inside the server."
+      },
+      {
+        layer: 3,
+        action: "Adding IP Addresses — Routing",
+        header: "IP Header",
+        headerContent: "Version: IPv4  TTL: 64\nSrc IP:  192.168.1.5\nDst IP:  142.250.80.46 (google.com)",
+        pdu: "Packet",
+        explanation: "The <strong>Network Layer</strong> adds source and destination IP addresses. Routers across the internet use only this IP header to make forwarding decisions — they don't look inside the TCP or HTTP data.",
+        whyItMatters: "IP addresses are like postal addresses. Without them, the data would have no destination and no routers would know where to send it."
+      },
+      {
+        layer: 2,
+        action: "Creating an Ethernet Frame",
+        header: "Ethernet Frame Header",
+        headerContent: "Src MAC: AA:BB:CC:11:22:33\nDst MAC: FF:EE:DD:44:55:66 (router)\nEtherType: 0x0800 (IPv4)",
+        pdu: "Frame",
+        explanation: "The <strong>Data Link Layer</strong> wraps the packet in an Ethernet frame with MAC addresses. The destination MAC isn't google's — it's your router's, because MAC addresses only work on the <em>local network segment</em>. Each hop rewrites the MAC addresses.",
+        whyItMatters: "Think of MAC addresses as the local delivery guy who hands your letter to the post office (router). They only need to handle the local leg, not the full journey."
+      },
+      {
+        layer: 1,
+        action: "Transmitting as Raw Bits",
+        header: "No Header — Raw Signal",
+        headerContent: "10110100 01110010 11001010 ...\n[Electrical pulses on Cat6 copper cable]\n[~1 Gbps = 1 billion bits per second]",
+        pdu: "Bits",
+        explanation: "The <strong>Physical Layer</strong> converts every bit (0 and 1) into an actual physical signal — an electrical pulse on copper cable, a light pulse on fiber, or a radio wave on Wi-Fi. It doesn't know what the data means; it just transmits raw signals.",
+        whyItMatters: "All the smart packaging above is useless without a physical medium to actually move the signals. This layer is the literal highway the data travels on."
+      }
+    ]
+  },
+  dns: {
+    name: "DNS Query", icon: "🔍",
+    scenario: "You type <strong>github.com</strong> in your browser. Before any page loads, your computer must ask a DNS server: 'What is the IP address for github.com?'",
+    steps: [
+      { layer: 7, action: "Creating the DNS Query", header: "DNS Query Message", headerContent: "Transaction ID: 0x1A2B\nType: A Record (IPv4 address)\nQuestion: github.com → ?", pdu: "Data", explanation: "The <strong>Application Layer</strong> creates a DNS query — a small message asking 'What is the IP address for github.com?'. DNS uses its own simple protocol with a question and answer format.", whyItMatters: "Humans use domain names like 'github.com', but computers route using numbers like '140.82.121.4'. DNS is the phonebook that bridges these two worlds." },
+      { layer: 6, action: "Encoding the DNS Message", header: "Binary Wire Format", headerContent: "DNS Wire Format (RFC 1035)\nCompressed binary encoding\n[No encryption — plain DNS]", pdu: "Data", explanation: "The <strong>Presentation Layer</strong> encodes the DNS query into binary wire format. Standard DNS is <strong>unencrypted</strong> — anyone on the network can see what websites you're looking up. DNS-over-HTTPS (DoH) fixes this.", whyItMatters: "This is a real privacy concern. Your ISP and anyone monitoring the network can log every domain you visit via plain DNS, even if the website itself uses HTTPS." },
+      { layer: 5, action: "No Session Needed (Stateless)", header: "No Session Header", headerContent: "DNS = Stateless (single query/response)\nUDP: no handshake, no session\n[Fire and forget]", pdu: "Data", explanation: "DNS uses UDP, not TCP — so there's <strong>no session layer activity</strong>. A DNS query is fire-and-forget: send the question, expect an answer, done. This makes DNS extremely fast but also vulnerable to spoofing.", whyItMatters: "This stateless, no-handshake design is why DNS is so fast (milliseconds), but also why DNS spoofing attacks are possible — there's no verification that the reply is genuine." },
+      { layer: 4, action: "UDP Datagram (No Guarantee)", header: "UDP Header", headerContent: "Src Port: 52413  Dst Port: 53\nLength: 29 bytes\nChecksum: 0x4A21  [No ACK]", pdu: "Datagram", explanation: "The <strong>Transport Layer</strong> uses <strong>UDP</strong> (not TCP) for DNS. UDP has no handshake and no guaranteed delivery — it's much faster. Port 53 is the standard DNS port. If the answer doesn't arrive, the OS simply retries.", whyItMatters: "TCP's 3-way handshake adds ~1 round-trip of delay. For a tiny DNS query, that matters a lot — using UDP keeps name resolution nearly instant." },
+      { layer: 3, action: "IP Packet to DNS Server", header: "IP Header", headerContent: "Src IP: 192.168.1.5\nDst IP: 8.8.8.8 (Google Public DNS)\nProtocol: UDP (17)  TTL: 64", pdu: "Packet", explanation: "The <strong>Network Layer</strong> addresses the packet to the DNS server — in this case Google's public DNS at 8.8.8.8. Routers forward this packet across the internet to reach Google's DNS infrastructure.", whyItMatters: "You can use any DNS server (8.8.8.8, 1.1.1.1, your ISP's). The IP address here determines which DNS server answers your query — this choice affects speed, privacy, and security." },
+      { layer: 2, action: "Ethernet Frame to Gateway", header: "Ethernet Frame Header", headerContent: "Src MAC: AA:BB:CC:11:22:33\nDst MAC: 00:1A:2B:3C:4D:5E (gateway)\nEtherType: IPv4 (0x0800)", pdu: "Frame", explanation: "The <strong>Data Link Layer</strong> sends the frame to your router (gateway). The router will then strip this Ethernet frame, examine the IP address, and re-frame it for the next network segment on the journey to 8.8.8.8.", whyItMatters: "Every time a packet crosses a network boundary, the Data Link frame is rebuilt with new MAC addresses — but the IP addresses inside stay the same all the way to the destination." },
+      { layer: 1, action: "Bits Transmitted", header: "Electrical/Radio Signal", headerContent: "Binary: 00010110 11001001 ...\n[Wi-Fi: 2.4GHz 802.11n radio waves]\n[Speed: 150 Mbps theoretical]", pdu: "Bits", explanation: "The <strong>Physical Layer</strong> converts the frame to radio waves (if Wi-Fi) or electrical pulses (if wired). The tiny DNS query — just a few dozen bytes — is on its way to the DNS server at the speed of light.", whyItMatters: "Signal quality at this layer affects everything above it. Weak Wi-Fi signal = slow DNS = slow internet browsing, even if the DNS server itself is fast." }
+    ]
+  },
+  email: {
+    name: "Email (SMTP)", icon: "📧",
+    scenario: "alice@company.com sends an email with a PDF attachment to bob@partner.org. The email must travel from Alice's laptop to Bob's inbox.",
+    steps: [
+      { layer: 7, action: "Composing the SMTP Message", header: "SMTP Commands", headerContent: "EHLO mail.company.com\nMAIL FROM: <alice@company.com>\nRCPT TO: <bob@partner.org>\nDATA\nSubject: Q4 Report", pdu: "Data", explanation: "The <strong>Application Layer</strong> uses SMTP (Simple Mail Transfer Protocol) to format the email. It's a conversation between mail servers: 'Hello, I'm from company.com. I have a message for bob@partner.org...'", whyItMatters: "SMTP is a store-and-forward protocol — your email might hop through several mail servers before reaching Bob, with each server acting as a relay." },
+      { layer: 6, action: "MIME Encoding + Encryption", header: "MIME & TLS Record", headerContent: "MIME-Version: 1.0\nContent-Type: multipart/mixed\nPDF attachment: base64 encoded\nTLS 1.3 encryption: active", pdu: "Data", explanation: "The <strong>Presentation Layer</strong> handles two jobs: MIME encoding (formatting text + the PDF attachment into one message) and TLS encryption (so the email can't be read in transit). Binary attachments become base64 text for safe transmission.", whyItMatters: "Without MIME, emails could only contain plain text. Without TLS, your email contents and attachments are visible to any network observer — like a postcard everyone can read." },
+      { layer: 5, action: "SMTP Session Dialog", header: "SMTP Session State", headerContent: "State: CONNECTED\nSession: Client ↔ Server dialog\nMode: Half-duplex (command/response)\nAuth: LOGIN successful", pdu: "Data", explanation: "The <strong>Session Layer</strong> manages the SMTP conversation — a structured back-and-forth dialog. The client sends commands, the server responds with 3-digit codes (250 = OK, 550 = rejected). Authentication happens here too.", whyItMatters: "The structured dialog ensures Alice's server and Bob's server agree at each step. If authentication fails or the recipient doesn't exist, the session ends cleanly with an error code." },
+      { layer: 4, action: "TCP Reliable Delivery", header: "TCP Header", headerContent: "Src Port: 50321  Dst Port: 587\n[Port 587 = SMTP with STARTTLS]\nSeq: 5001  Ack: 8002\nFlags: PSH, ACK", pdu: "Segment", explanation: "The <strong>Transport Layer</strong> uses TCP on port 587 (SMTP with TLS). TCP ensures the email and attachment arrive <em>completely</em> and in order — critical for emails, where a partially received message would be corrupt.", whyItMatters: "Unlike DNS which uses UDP, email uses TCP because emails must arrive intact. A missing segment in a PDF attachment would corrupt the entire file." },
+      { layer: 3, action: "Routing to Mail Server", header: "IP Header", headerContent: "Src IP: 10.0.1.42 (Alice laptop)\nDst IP: 203.0.113.15 (mail.partner.org)\nTTL: 64  Protocol: TCP (6)", pdu: "Packet", explanation: "The <strong>Network Layer</strong> routes the packet toward partner.org's mail server. The destination IP was found via an MX (Mail Exchange) DNS lookup — a special DNS record that says 'this domain receives email at this IP'.", whyItMatters: "MX records are why you can send to any email address without knowing the server's IP. DNS's MX system automatically routes your email to the right mail server." },
+      { layer: 2, action: "Ethernet Frame", header: "Ethernet Frame Header", headerContent: "Src MAC: AA:BB:CC:11:22:33\nDst MAC: 00:11:22:33:44:55 (gateway)\nFrame size: up to 1500 bytes (MTU)", pdu: "Frame", explanation: "The <strong>Data Link Layer</strong> frames the packet for the local network. If the email is large (with the PDF), it was already split into multiple TCP segments. Each segment becomes a separate Ethernet frame — all reassembled at the destination.", whyItMatters: "Ethernet has a maximum frame size (MTU = 1500 bytes). Larger data must be fragmented. The TCP layer handles reassembly on the other end — the user never sees this happening." },
+      { layer: 1, action: "Signal Transmission", header: "Physical Signal", headerContent: "Cat6 UTP cable: electrical pulses\nSpeed: 1 Gbps (full duplex)\nSignal encoding: 1000BASE-T", pdu: "Bits", explanation: "The <strong>Physical Layer</strong> transmits the bits. If the email is large (say, 5MB PDF), millions of bits are transmitted. The physical layer doesn't care — it just converts them to electrical pulses on copper and sends them at 1 Gbps.", whyItMatters: "Physical infrastructure failures here — bad cables, faulty NICs, fiber cuts — cause complete outages no matter how perfect the layers above are. This is the foundation everything else depends on." }
+    ]
+  },
+  ssh: {
+    name: "SSH Connection", icon: "🔒",
+    scenario: "A developer connects to a remote Linux server at 203.0.113.42 to deploy code. Everything typed in the terminal is sent securely through SSH.",
+    steps: [
+      { layer: 7, action: "SSH Client Initiates Connection", header: "SSH Protocol Messages", headerContent: "SSH-2.0-OpenSSH_9.0\nKey Exchange Init: curve25519-sha256\nAuth Method: publickey (RSA 4096)", pdu: "Data", explanation: "The <strong>Application Layer</strong> uses the SSH protocol. The client identifies itself and proposes encryption algorithms. Unlike passwords sent in plaintext (Telnet), SSH immediately negotiates how to encrypt everything before any credentials are exchanged.", whyItMatters: "Telnet and rsh sent passwords in clear text — anyone on the network could capture them. SSH was invented specifically to solve this: even the authentication is encrypted." },
+      { layer: 6, action: "Cryptographic Handshake", header: "SSH Encryption Setup", headerContent: "Key Exchange: Diffie-Hellman\nServer Key: ED25519 fingerprint\nSession Key: AES-256-CTR\nMAC: HMAC-SHA2-256", pdu: "Data", explanation: "The <strong>Presentation Layer</strong> performs the cryptographic handshake. Using Diffie-Hellman key exchange, both sides derive an identical encryption key <em>without ever transmitting it</em> — even if someone is watching the connection, they can't get the key.", whyItMatters: "Diffie-Hellman is mathematical magic: two parties can agree on a secret over a public channel without an eavesdropper learning it. This is the foundation of all secure internet communication." },
+      { layer: 5, action: "SSH Channel Opened", header: "SSH Session Channel", headerContent: "Channel Type: session\nChannel ID: 0\nMax Packet Size: 32768\nPTY Allocated: xterm-256color", pdu: "Data", explanation: "The <strong>Session Layer</strong> opens an SSH channel — a virtual tunnel for the shell session. SSH can multiplex multiple channels over one connection (file transfer + interactive shell simultaneously), all encrypted.", whyItMatters: "SSH channels allow features like port forwarding, X11 forwarding, and SFTP — all running securely in the same encrypted session. One SSH connection, many capabilities." },
+      { layer: 4, action: "TCP Connection on Port 22", header: "TCP Header", headerContent: "Src Port: 49821  Dst Port: 22\n[Port 22 = SSH standard]\nSeq: 7823  Ack: 1024\nFlags: ACK  Window: 65535", pdu: "Segment", explanation: "The <strong>Transport Layer</strong> uses TCP on port 22 — the standard SSH port. TCP's reliable, ordered delivery is critical here: if you type 'rm -rf /tmp/*' and the characters arrive out of order, the wrong command executes.", whyItMatters: "Many organizations block or move SSH from port 22 as a basic security measure (security through obscurity). Port scanning tools look for port 22 to find SSH servers to attack." },
+      { layer: 3, action: "IP Packet to Remote Server", header: "IP Header", headerContent: "Src IP:  10.0.0.5 (developer laptop)\nDst IP:  203.0.113.42 (prod server)\nTTL: 64  Flags: DF (Don't Fragment)", pdu: "Packet", explanation: "The <strong>Network Layer</strong> routes the packet across the internet to the production server. The 'Don't Fragment' flag is set — SSH prefers to know if packets are too large rather than have them silently split up.", whyItMatters: "Setting DF (Don't Fragment) allows Path MTU Discovery — the system automatically finds the largest packet size that works end-to-end. Fragmentation can cause subtle connectivity issues." },
+      { layer: 2, action: "Ethernet or Wi-Fi Frame", header: "Data Link Frame", headerContent: "Interface: eth0 (wired)\nSrc MAC: AA:BB:CC:11:22:33\nDst MAC: gateway MAC\nMTU: 1500 bytes", pdu: "Frame", explanation: "The <strong>Data Link Layer</strong> handles local delivery. If the developer is on corporate Wi-Fi (802.11), this is a Wi-Fi frame instead of Ethernet — but the layer above (IP) doesn't care. Layer 2 is swapped transparently at each hop.", whyItMatters: "This is the 'last mile' — the connection from your machine to your first router. Wi-Fi interference here causes SSH sessions to lag or freeze, even though the internet beyond the router is fine." },
+      { layer: 1, action: "Signal: Bits on the Wire", header: "Physical Signal", headerContent: "Medium: Ethernet Cat6 copper\nEncoding: 1000BASE-T (4-pair)\nSignal: differential voltage pairs\nSpeed: 1 Gbps full-duplex", pdu: "Bits", explanation: "The <strong>Physical Layer</strong> sends the bits. Every keystroke you type in the SSH terminal becomes bytes, gets encrypted at Layer 6, TCP-segmented at Layer 4, IP-packaged at Layer 3, framed at Layer 2, and finally becomes electrical pulses here.", whyItMatters: "Physical distance matters: light in fiber travels at ~200,000 km/s. London ↔ New York is ~5500 km. The minimum round-trip latency is ~55ms — pure physics. No software can make packets travel faster than light." }
+    ]
+  },
+  voip: {
+    name: "VoIP Call (SIP)", icon: "📞",
+    scenario: "Alice picks up her desk phone (IP phone) and calls Bob's extension. The voice must travel as digital packets in real time — any delay over 150ms becomes noticeable.",
+    steps: [
+      { layer: 7, action: "SIP INVITE — Call Setup", header: "SIP Message", headerContent: "INVITE sip:bob@company.com SIP/2.0\nFrom: alice@company.com\nCall-ID: a84b4c76e66710@pc33\nContent-Type: application/sdp", pdu: "Data", explanation: "The <strong>Application Layer</strong> uses SIP (Session Initiation Protocol) to set up the call — like dialing. The SIP INVITE message says 'I want to call Bob, here are my audio capabilities'. This negotiates the call <em>before</em> any voice flows.", whyItMatters: "SIP only sets up and tears down calls. The actual voice is carried by a completely different protocol (RTP). This separation lets SIP be used for video, messaging, and file transfer too." },
+      { layer: 6, action: "Voice Codec Encoding", header: "Audio Codec Processing", headerContent: "Codec: G.711 μ-law (PSTN quality)\nSample Rate: 8,000 Hz\nBit Rate: 64 kbps\nPacket: 20ms audio chunks", pdu: "Data", explanation: "The <strong>Presentation Layer</strong> encodes the voice. Your voice (analog) is sampled 8,000 times per second, each sample becoming a number. G.711 is high quality; G.729 compresses to 8 kbps for slower connections. Every 20ms becomes one RTP packet.", whyItMatters: "Codec choice is a trade-off: G.711 sounds great but uses 64 kbps; G.729 sounds decent but uses only 8 kbps. On a slow internet connection, G.729 might mean the difference between a working call and a choppy one." },
+      { layer: 5, action: "RTP Session Established", header: "SIP Session / RTP Stream", headerContent: "SDP negotiated: RTP port 16384\nSession: bidirectional audio\nRTCP port: 16385 (control)\nMode: sendrecv", pdu: "Data", explanation: "The <strong>Session Layer</strong> manages the RTP media session. SDP (Session Description Protocol) negotiated during SIP setup tells both sides which port to send audio to and which codec to use. RTCP runs alongside to report quality stats.", whyItMatters: "RTCP (RTP Control Protocol) runs in the background monitoring call quality — packet loss, jitter, delay. This data can trigger automatic codec switches or alert IT about network problems." },
+      { layer: 4, action: "UDP — Speed Over Reliability", header: "UDP Header", headerContent: "Src Port: 16384  Dst Port: 16384\nLength: 172 bytes\n[RTP over UDP — no retransmission]\n[Every 20ms: one packet]", pdu: "Datagram", explanation: "The <strong>Transport Layer</strong> uses <strong>UDP</strong>, not TCP. Voice calls cannot wait for TCP retransmissions — a 20ms audio packet that arrives 200ms late is useless. It's better to have a brief glitch than a delayed voice. Lost packets = brief silence, not a frozen call.", whyItMatters: "This is why VoIP quality depends so much on your network: dropped UDP packets = audible glitches. QoS (Quality of Service) settings on routers prioritize VoIP UDP traffic over regular TCP to prevent this." },
+      { layer: 3, action: "IP Routing with QoS Marking", header: "IP Header + DSCP", headerContent: "Src IP: 10.1.1.5\nDst IP: 10.1.1.20\nDSCP: EF (46) — Expedited Forwarding\n[Highest QoS priority]", pdu: "Packet", explanation: "The <strong>Network Layer</strong> adds the IP addresses and crucially, a <strong>QoS DSCP marking</strong> (Expedited Forwarding = highest priority). Routers seeing this marking put VoIP packets at the front of the queue, ahead of file downloads and web browsing.", whyItMatters: "Without QoS, a large file download on the same network would cause voice packets to queue up, creating jitter and delay. QoS ensures voice always gets through first." },
+      { layer: 2, action: "Wi-Fi Frame with Priority", header: "802.11 Wi-Fi Frame + WMM", headerContent: "Frame Type: Data, QoS subtype\nWMM Access Category: Voice (AC_VO)\n[Highest Wi-Fi priority queue]\nSSID: Corp-WiFi-5GHz", pdu: "Frame", explanation: "The <strong>Data Link Layer</strong> uses Wi-Fi Multimedia (WMM) QoS. The voice traffic goes into the Voice Access Category queue — the Wi-Fi equivalent of a priority lane. This reduces wireless jitter significantly.", whyItMatters: "Wi-Fi has four priority queues: Background, Best Effort, Video, and Voice. Without WMM, your VoIP call competes equally with someone's Netflix stream on the same access point." },
+      { layer: 1, action: "Radio Transmission at 5GHz", header: "Radio Signal", headerContent: "Frequency: 5GHz (802.11ac)\nChannel Width: 80MHz\nMax Speed: 433 Mbps\n[Small packet: 172 bytes every 20ms]", pdu: "Bits", explanation: "The <strong>Physical Layer</strong> transmits the voice packets as radio waves at 5GHz. Using 5GHz (vs 2.4GHz) means less congestion and interference from neighbors' networks — important for voice quality.", whyItMatters: "Physical distance from the access point directly affects call quality. As you move away, the signal weakens, forcing the Wi-Fi to use lower speeds and more error correction, increasing latency and packet loss." }
+    ]
+  },
+  video: {
+    name: "Video Stream", icon: "📹",
+    scenario: "You hit Play on a 4K YouTube video. Your browser fetches video chunks continuously, adapting quality based on your connection speed.",
+    steps: [
+      { layer: 7, action: "Fetching the Video Manifest", header: "HTTP/2 GET Request", headerContent: "GET /videoplayback?id=abc123\nHTTP/2  Host: rr3---sn-googlevideo.com\nAccept: application/x-mpegURL\n[Adaptive Bitrate: DASH/HLS]", pdu: "Data", explanation: "The <strong>Application Layer</strong> first fetches a manifest file that lists all available quality levels (360p, 720p, 1080p, 4K) and their URLs. Your player then decides which quality to fetch based on your current bandwidth — this is Adaptive Bitrate Streaming (ABR).", whyItMatters: "ABR is why YouTube rarely buffers — instead of failing, it silently drops to 480p during congestion and bumps back to 4K when bandwidth returns. You barely notice." },
+      { layer: 6, action: "Video Compression + TLS", header: "H.264/H.265 + TLS Record", headerContent: "Video Codec: H.264 (AVC)\nResolution: 1920×1080 @ 30fps\nBitrate: 8 Mbps\nTLS 1.3: AES-128-GCM encrypted", pdu: "Data", explanation: "The <strong>Presentation Layer</strong> handles massive compression: raw 1080p video would be ~180 Gbps uncompressed. H.264 compresses it to ~8 Mbps — a 22,500× reduction — by storing only what changes between frames, not every full frame.", whyItMatters: "Without H.264/H.265 compression, streaming video would be impossible. A single hour of 1080p would require ~80 TB uncompressed. Compression is what makes the entire streaming industry work." },
+      { layer: 5, action: "HTTP/2 Multiplexed Stream", header: "HTTP/2 Session", headerContent: "HTTP/2 Stream ID: 7\nMultiplexed: audio + video parallel\nServer Push: enabled\nConnection: keep-alive (persistent)", pdu: "Data", explanation: "The <strong>Session Layer</strong> manages the HTTP/2 session. Unlike HTTP/1.1 (one request at a time), HTTP/2 multiplexes multiple streams over one connection — video and audio arrive simultaneously over the same TCP session without blocking each other.", whyItMatters: "HTTP/1.1 would need separate connections for video and audio, each with its own TCP handshake delay. HTTP/2 multiplexing over one connection is a big part of why modern streaming starts fast." },
+      { layer: 4, action: "TCP or QUIC Transport", header: "TCP/QUIC Segment", headerContent: "Protocol: QUIC (UDP-based)\nSrc Port: 45123  Dst Port: 443\nStream: reliable, ordered per-stream\nCongestion Control: BBR algorithm", pdu: "Segment", explanation: "The <strong>Transport Layer</strong> may use TCP or the newer <strong>QUIC</strong> protocol (used by YouTube/Google). QUIC runs over UDP but adds reliability per-stream — one stalled stream doesn't block others. It also has built-in encryption (no separate TLS layer).", whyItMatters: "QUIC was invented because TCP's head-of-line blocking caused video stalls. With QUIC, if one video chunk stalls, other chunks for the same video can still flow unblocked." },
+      { layer: 3, action: "Routing to CDN Edge Node", header: "IP Header (Anycast)", headerContent: "Src IP: 192.168.1.10\nDst IP: 142.250.80.46 (CDN edge)\n[Anycast: nearest CDN chosen automatically]\nTTL: 64  DSCP: AF41 (video)", pdu: "Packet", explanation: "The <strong>Network Layer</strong> routes to the nearest CDN (Content Delivery Network) edge server. YouTube has servers in hundreds of cities. Using Anycast, the same IP address is advertised from all locations, and BGP automatically routes your request to the <em>nearest</em> one.", whyItMatters: "Without CDNs, every video request would cross the entire internet to one central server. With CDNs, most requests go to a server in your city — much faster and scalable to millions of simultaneous viewers." },
+      { layer: 2, action: "Ethernet Frame — Multiple Segments", header: "Ethernet Frame", headerContent: "Src MAC: AA:BB:CC:11:22:33\nDst MAC: gateway MAC\nMax frame: 1500 bytes (MTU)\n[Video chunk: hundreds of frames]", pdu: "Frame", explanation: "The <strong>Data Link Layer</strong> sends multiple Ethernet frames. A single 2-second 4K video chunk at 25 Mbps is ~6MB — that's about 4,000 Ethernet frames back-to-back. Your NIC and switch handle this stream continuously.", whyItMatters: "High-throughput streaming can saturate a 100Mbps port if multiple devices stream 4K simultaneously. This is why network switches matter — a managed switch can prioritize video traffic." },
+      { layer: 1, action: "High-Speed Physical Transmission", header: "High-Speed Physical Signal", headerContent: "Medium: Fiber optic (FTTH)\nSpeed: 1 Gbps downstream\nSignal: 1310nm infrared light pulses\n[4K streaming needs ~25 Mbps]", pdu: "Bits", explanation: "The <strong>Physical Layer</strong> carries the bits at high speed. Fiber-to-the-home (FTTH) can deliver 1 Gbps — far more than 4K streaming requires (~25 Mbps). The extra bandwidth means smooth streaming even as others in your home also stream.", whyItMatters: "This is why fiber internet handles 4K streaming so much better than old copper DSL. Fiber's optical signals have near-zero interference and can carry orders of magnitude more bandwidth." }
+    ]
+  }
+};
+
+// PDU name by layer
+const PDU_NAMES = { 7:'Data', 6:'Data', 5:'Data', 4:'Segment / Datagram', 3:'Packet', 2:'Frame', 1:'Bits' };
+// Header added by each layer (during encapsulation)
+const HEADER_LABELS = {
+  7: { text:'Application Header', color:'#E74C3C' },
+  6: { text:'Presentation / TLS Header', color:'#E67E22' },
+  5: { text:'Session Info', color:'#F1C40F' },
+  4: { text:'TCP / UDP Header', color:'#2ECC71' },
+  3: { text:'IP Header', color:'#3498DB' },
+  2: { text:'Ethernet / Wi-Fi Frame', color:'#9B59B6' },
+  1: { text:'Physical Signal (no header)', color:'#7F8C8D' }
+};
+
+// Journey State
+let currentJourneyStep = 0;
+const TOTAL_JOURNEY_STEPS = 15;
+
+function buildJourneyStacks() {
+  const sender   = document.getElementById('senderStack');
+  const receiver = document.getElementById('receiverStack');
+  const sTitle = sender.querySelector('.journey-side-title').outerHTML;
+  const rTitle = receiver.querySelector('.journey-side-title').outerHTML;
+  sender.innerHTML   = sTitle;
+  receiver.innerHTML = rTitle;
+
+  OSI_LAYERS.forEach(layer => {
+    const mk = (side) => {
+      const row = document.createElement('div');
+      row.className = 'journey-layer-row';
+      row.id = `${side}-layer-${layer.id}`;
+      row.style.setProperty('--layer-color', layer.color);
+      row.style.setProperty('--layer-color-bg', layer.colorBg);
+      row.innerHTML = `
+        <div class="layer-label">${layer.emoji} L${layer.id}: <strong>${layer.name}</strong></div>
+        <div class="layer-add" id="${side}-add-${layer.id}">standby...</div>
+      `;
+      return row;
+    };
+    sender.appendChild(mk('s'));
+    receiver.appendChild(mk('r'));
+  });
+}
+buildJourneyStacks();
+
+// Set phase
+function setPhase(phaseNum) {
+  ['phase1','phase2','phase3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+    if (phaseNum === 4) {
+      el.classList.add('done');
+    } else if (i + 1 < phaseNum) {
+      el.classList.add('done');
+    } else if (i + 1 === phaseNum) {
+      el.classList.add('active');
+    }
+  });
+}
+
+// Update PDU tracker
+function setPDUActive(pduName, color, colorBg) {
+  const pduItems = document.querySelectorAll('.pdu-flow-item');
+  pduItems.forEach(el => {
+    const text = el.textContent.trim().toLowerCase();
+    const match = pduName.toLowerCase().includes(text);
+    if (match) {
+      el.classList.add('active');
+      el.style.setProperty('--dp-color', color);
+      el.style.setProperty('--dp-color-bg', colorBg);
+    } else {
+      el.classList.remove('active');
+      el.style.removeProperty('--dp-color');
+      el.style.removeProperty('--dp-color-bg');
+    }
+  });
+}
+
+// Transmission Phase Animated Flow
+let transmissionAnimId = null;
+
+function stopTransmissionAnimation() {
+  if (transmissionAnimId) {
+    cancelAnimationFrame(transmissionAnimId);
+    transmissionAnimId = null;
+  }
+  const dotDown = document.getElementById('dotDown');
+  const dotUp = document.getElementById('dotUp');
+  if (dotDown) {
+    dotDown.style.display = 'none';
+    dotDown.style.top = '-7px';
+    dotDown.style.transform = 'translateX(-50%)';
+  }
+  if (dotUp) {
+    dotUp.style.display = 'none';
+    dotUp.style.top = '-7px';
+    dotUp.style.transform = 'translateX(-50%)';
+  }
+}
+
+function startTransmissionAnimation() {
+  stopTransmissionAnimation();
+  const dotDown = document.getElementById('dotDown');
+  const dotUp = document.getElementById('dotUp');
+  const wire1 = document.getElementById('wireTop');
+  const wire2 = document.getElementById('wireBottom');
+  if (!dotDown || !dotUp || !wire1 || !wire2) return;
+
+  const h1 = wire1.offsetHeight || 180;
+  const h2 = wire2.offsetHeight || 180;
+  const legDur = 1100;
+  const pause = 220;
+  const totalCycle = (legDur * 2) + (pause * 2);
+
+  let cycleStart = performance.now();
+
+  function loop(ts) {
+    if (currentJourneyStep !== 8) {
+      stopTransmissionAnimation();
+      return;
+    }
+    const elapsed = (ts - cycleStart) % totalCycle;
+
+    if (elapsed < legDur) {
+      // Flow down sender wire
+      const p = elapsed / legDur;
+      dotDown.style.display = 'block';
+      dotDown.style.top = (p * h1 - 7) + 'px';
+      dotUp.style.display = 'none';
+    } else if (elapsed < legDur + pause) {
+      // Middle transit through physical link / repeater
+      dotDown.style.display = 'none';
+      dotUp.style.display = 'none';
+    } else if (elapsed < (legDur * 2) + pause) {
+      // Flow up receiver wire
+      const p = (elapsed - legDur - pause) / legDur;
+      dotDown.style.display = 'none';
+      dotUp.style.display = 'block';
+      dotUp.style.top = ((1 - p) * h2 - 7) + 'px';
+    } else {
+      // Pause before next packet pulse
+      dotDown.style.display = 'none';
+      dotUp.style.display = 'none';
+    }
+
+    transmissionAnimId = requestAnimationFrame(loop);
+  }
+
+  transmissionAnimId = requestAnimationFrame(loop);
+}
+
+// Render journey step (0 to 15)
+function renderJourneyStep(stepIdx) {
+  currentJourneyStep = stepIdx;
+  const type = document.getElementById('trafficSelect').value;
+  const traffic = TRAFFIC_INFO[type];
+  const phaseComp = document.getElementById('phaseComplete');
+  const prevBtn = document.getElementById('stepPrevBtn');
+  const nextBtn = document.getElementById('stepNextBtn');
+  const indicator = document.getElementById('stepIndicator');
+
+  // Button states
+  prevBtn.disabled = (stepIdx === 0);
+  nextBtn.disabled = (stepIdx === TOTAL_JOURNEY_STEPS);
+  phaseComp.classList.remove('show');
+
+  // Stop transmission animation if leaving step 8
+  if (stepIdx !== 8) {
+    stopTransmissionAnimation();
+  }
+
+  // STEP 0: Introduction / Ready
+  if (stepIdx === 0) {
+    setPhase(1);
+    indicator.textContent = `Step 0 / ${TOTAL_JOURNEY_STEPS} (Intro)`;
+
+    // Reset stacks
+    OSI_LAYERS.forEach(l => {
+      ['s','r'].forEach(side => {
+        const row = document.getElementById(`${side}-layer-${l.id}`);
+        row.classList.remove('active','done');
+        document.getElementById(`${side}-add-${l.id}`).textContent = 'standby...';
+      });
+    });
+
+    // Reset details
+    document.getElementById('dpIcon').textContent = traffic.icon || '📤';
+    document.getElementById('dpEyebrow').textContent = 'PHASE 1 — ENCAPSULATION';
+    document.getElementById('dpTitle').textContent = `${traffic.name} — Ready to Encapsulate`;
+    document.getElementById('dpBody').innerHTML = `
+      <div style="margin-bottom:10px"><strong>Scenario:</strong> ${traffic.scenario}</div>
+      <div style="color:var(--text2);font-size:12.5px;line-height:1.6">
+        Data starts at your application and travels <strong>down</strong> from Layer 7 (Application) to Layer 1 (Physical). Each layer adds its own header — like nested envelopes.<br><br>
+        Click <strong>Next Step ›</strong> to begin!
+      </div>
+    `;
+    document.getElementById('dpMain').style.borderColor = 'var(--border2)';
+    document.getElementById('dpMain').style.borderLeftWidth = '1px';
+
+    // Header stack
+    document.getElementById('dpHeaderStack').innerHTML =
+      `<div class="header-block" style="background:rgba(127,140,141,0.12);border-color:rgba(127,140,141,0.3);color:#7F8C8D">[ Original Data / Payload ]</div>`;
+
+    setPDUActive('Data', '#38bdf8', 'rgba(56,189,248,0.1)');
+    document.getElementById('dpPDULabel').style.setProperty('--dp-color', '#38bdf8');
+    document.getElementById('dpStackLabel').style.setProperty('--dp-color', '#818cf8');
+    return;
+  }
+
+  // STEP 1 to 7: Encapsulation (L7 down to L1)
+  if (stepIdx >= 1 && stepIdx <= 7) {
+    setPhase(1);
+    const stepArrIdx = stepIdx - 1; // 0 to 6
+    const step = traffic.steps[stepArrIdx];
+    const lid = step.layer;
+    const layer = OSI_LAYERS.find(l => l.id === lid);
+
+    indicator.textContent = `Step ${stepIdx} / ${TOTAL_JOURNEY_STEPS} (Sender L${lid}: ${layer.name})`;
+
+    // Sender stack
+    OSI_LAYERS.forEach(l => {
+      const sRow = document.getElementById(`s-layer-${l.id}`);
+      sRow.classList.remove('active','done');
+      if (l.id > lid) {
+        // Higher layers already processed
+        sRow.classList.add('done');
+        const pastStep = traffic.steps.find(s => s.layer === l.id);
+        document.getElementById(`s-add-${l.id}`).textContent = pastStep ? pastStep.action : 'Encapsulated';
+      } else if (l.id === lid) {
+        // Current active layer
+        sRow.classList.add('active');
+        document.getElementById(`s-add-${l.id}`).textContent = step.action;
+      } else {
+        // Lower layers not yet reached
+        document.getElementById(`s-add-${l.id}`).textContent = 'standby...';
+      }
+    });
+
+    // Receiver stack all standby
+    OSI_LAYERS.forEach(l => {
+      const rRow = document.getElementById(`r-layer-${l.id}`);
+      rRow.classList.remove('active','done');
+      document.getElementById(`r-add-${l.id}`).textContent = 'standby...';
+    });
+
+    // Detail Panel
+    renderStepDetail(step, 1, layer, false);
+    renderHeaderStack(lid, false, traffic.steps);
+    setPDUActive(step.pdu, layer.color, layer.colorBg);
+    return;
+  }
+
+  // STEP 8: Phase 2 — Transmission (Physical Medium)
+  if (stepIdx === 8) {
+    setPhase(2);
+    indicator.textContent = `Step 8 / ${TOTAL_JOURNEY_STEPS} (Physical Transmission)`;
+
+    // Sender stack all done
+    OSI_LAYERS.forEach(l => {
+      const sRow = document.getElementById(`s-layer-${l.id}`);
+      sRow.classList.remove('active');
+      sRow.classList.add('done');
+      const pastStep = traffic.steps.find(s => s.layer === l.id);
+      document.getElementById(`s-add-${l.id}`).textContent = pastStep ? pastStep.action : 'Encapsulated';
+    });
+
+    // Receiver stack all standby
+    OSI_LAYERS.forEach(l => {
+      const rRow = document.getElementById(`r-layer-${l.id}`);
+      rRow.classList.remove('active','done');
+      document.getElementById(`r-add-${l.id}`).textContent = 'standby...';
+    });
+
+    // Trigger active physical transmission flow animation
+    startTransmissionAnimation();
+
+    // Detail Panel
+    document.getElementById('dpIcon').textContent = '📡';
+    document.getElementById('dpEyebrow').textContent = 'PHASE 2 — PHYSICAL TRANSMISSION';
+    document.getElementById('dpTitle').textContent = 'Bits Propagating Across Physical Medium';
+    document.getElementById('dpBody').innerHTML = `
+      <div style="margin-bottom:10px">
+        The packet is fully encapsulated with all 7 layer headers wrapped around the original data. It has been converted to <strong>binary 0s and 1s</strong> and is currently propagating across the physical link.
+      </div>
+      <div style="background:var(--bg3);border-radius:7px;padding:11px 14px;font-family:var(--font-mono);font-size:11.5px;color:var(--text2);border:1px solid var(--border);line-height:1.7">
+        <span style="color:#38bdf8">◉ Medium:</span> Copper Cat6, Fiber Optic, or 5GHz Radio Waves<br>
+        <span style="color:#818cf8">◉ Velocity:</span> ~200,000 km/s (~66% speed of light in vacuum)<br>
+        <span style="color:#22c55e">◉ Structure:</span> All headers intact (L7 through L2) enclosing the data payload
+      </div>
+      <div style="margin-top:10px;padding:10px 13px;background:rgba(129,140,248,0.06);border-radius:7px;border:1px solid rgba(129,140,248,0.2);font-size:12.5px;color:var(--text2)">
+        <strong style="color:var(--text)">💡 Physical Layer Reality:</strong> The physical cables and routers don't read your passwords or HTTP commands — to the wire, it is purely electrical voltages or light flickers.
+      </div>
+    `;
+    document.getElementById('dpMain').style.borderColor = '#818cf8';
+    document.getElementById('dpMain').style.borderLeftWidth = '3px';
+
+    // Header stack shows complete packet
+    renderHeaderStack(1, false, traffic.steps);
+    setPDUActive('Bits', '#7F8C8D', 'rgba(127,140,141,0.12)');
+    return;
+  }
+
+  // STEP 9 to 14: Decapsulation (Receiver L1 up to L6)
+  if (stepIdx >= 9 && stepIdx <= 14) {
+    setPhase(3);
+    const decapArrIdx = stepIdx - 9; // 0 to 5
+    const reversed = [...traffic.steps].reverse();
+    const step = reversed[decapArrIdx];
+    const lid = step.layer;
+    const layer = OSI_LAYERS.find(l => l.id === lid);
+
+    indicator.textContent = `Step ${stepIdx} / ${TOTAL_JOURNEY_STEPS} (Receiver L${lid}: ${layer.name})`;
+
+    // Sender stack all done
+    OSI_LAYERS.forEach(l => {
+      const sRow = document.getElementById(`s-layer-${l.id}`);
+      sRow.classList.remove('active');
+      sRow.classList.add('done');
+    });
+
+    // Receiver stack
+    OSI_LAYERS.forEach(l => {
+      const rRow = document.getElementById(`r-layer-${l.id}`);
+      rRow.classList.remove('active','done');
+      if (l.id < lid) {
+        // Lower layers already stripped
+        rRow.classList.add('done');
+        rRow.classList.remove('active');
+        document.getElementById(`r-add-${l.id}`).textContent = `Header stripped`;
+      } else if (l.id === lid) {
+        // Current active layer stripping its header
+        rRow.classList.add('active');
+        document.getElementById(`r-add-${l.id}`).textContent = `Stripping: ${HEADER_LABELS[lid].text}`;
+      } else {
+        // Higher layers not yet reached
+        document.getElementById(`r-add-${l.id}`).textContent = 'standby...';
+      }
+    });
+
+    renderStepDetail(step, 3, layer, true);
+    renderHeaderStack(lid, true, traffic.steps);
+    setPDUActive(step.pdu, layer.color, layer.colorBg);
+    return;
+  }
+
+  // STEP 15: Delivered! (Receiver L7)
+  if (stepIdx === 15) {
+    setPhase(4);
+    indicator.textContent = `Step 15 / ${TOTAL_JOURNEY_STEPS} (Delivered ✓)`;
+
+    // Sender stack all done
+    OSI_LAYERS.forEach(l => {
+      const sRow = document.getElementById(`s-layer-${l.id}`);
+      sRow.classList.remove('active');
+      sRow.classList.add('done');
+    });
+
+    // Receiver stack all done, L7 active
+    OSI_LAYERS.forEach(l => {
+      const rRow = document.getElementById(`r-layer-${l.id}`);
+      rRow.classList.remove('active','done');
+      if (l.id === 7) {
+        rRow.classList.add('active');
+        document.getElementById(`r-add-7`).textContent = '✓ Original data delivered!';
+      } else {
+        rRow.classList.add('done');
+        document.getElementById(`r-add-${l.id}`).textContent = 'Header stripped';
+      }
+    });
+
+    // Detail Panel
+    document.getElementById('dpIcon').textContent = '✅';
+    document.getElementById('dpEyebrow').textContent = 'PHASE 3 COMPLETE — DATA RESTORED';
+    document.getElementById('dpTitle').textContent = `${traffic.name} — Delivered Successfully!`;
+    document.getElementById('dpBody').innerHTML = `
+      <div style="margin-bottom:10px">
+        The <strong>Application Layer</strong> on the receiving computer has received the exact data sent from the source application. All encapsulation headers were verified and stripped layer-by-layer.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+        <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:12px;font-size:12.5px">
+          <div style="color:#22c55e;font-weight:700;margin-bottom:4px;font-size:11px">// ENCAPSULATION (SENDER)</div>
+          Wrapped down L7 → L1<br>7 headers added sequentially<br>Sender complete
+        </div>
+        <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:12px;font-size:12.5px">
+          <div style="color:#22c55e;font-weight:700;margin-bottom:4px;font-size:11px">// DECAPSULATION (RECEIVER)</div>
+          Stripped up L1 → L7<br>All headers verified & removed<br>Receiver delivered
+        </div>
+      </div>
+    `;
+    document.getElementById('dpMain').style.borderColor = '#22c55e';
+    document.getElementById('dpMain').style.borderLeftWidth = '3px';
+
+    document.getElementById('dpHeaderStack').innerHTML =
+      `<div class="header-block" style="background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.4);color:#22c55e;font-weight:700">✓ Original Data — Fully Restored & Delivered</div>`;
+
+    setPDUActive('Data', '#22c55e', 'rgba(34,197,94,0.1)');
+    phaseComp.textContent = '✓ Journey Complete — All 3 phases finished. Use ‹ Prev Step to review any layer, or select another traffic type!';
+    phaseComp.classList.add('show');
+  }
+}
+
+// Render detail card helper
+function renderStepDetail(step, phase, layer, isDecap) {
+  const color = layer.color;
+  document.getElementById('dpIcon').textContent = layer.emoji;
+  document.getElementById('dpEyebrow').textContent = `${phase === 1 ? 'ENCAPSULATING (SENDER)' : 'DECAPSULATING (RECEIVER)'} — LAYER ${layer.id}: ${layer.name.toUpperCase()}`;
+  document.getElementById('dpTitle').textContent = isDecap
+    ? `Stripping: ${HEADER_LABELS[layer.id].text}`
+    : `Adding: ${step.action}`;
+  document.getElementById('dpMain').style.borderColor = color;
+  document.getElementById('dpMain').style.borderLeftWidth = '3px';
+
+  document.getElementById('dpBody').innerHTML = `
+    <div style="margin-bottom:10px">${step.explanation}</div>
+    <div style="background:var(--bg3);border-radius:7px;padding:10px 13px;border:1px solid var(--border);font-family:var(--font-mono);font-size:11.5px;line-height:1.7;color:var(--text2);margin-top:8px">
+      <div style="color:${color};font-weight:700;margin-bottom:4px;font-size:10px;letter-spacing:.08em;text-transform:uppercase">
+        ${isDecap ? '✂ Header being stripped' : '+ Header being added'}
+      </div>
+      <div style="color:var(--text)">${step.header}</div>
+      <pre style="margin-top:5px;font-size:10.5px;opacity:.75;white-space:pre-wrap">${step.headerContent}</pre>
+    </div>
+    <div style="margin-top:10px;padding:10px 13px;background:rgba(56,189,248,0.05);border-radius:7px;border:1px solid rgba(56,189,248,0.15);font-size:12.5px;color:var(--text2)">
+      <strong style="color:var(--text)">💡 Why does this layer exist?</strong><br>${step.whyItMatters}
+    </div>
+  `;
+  document.getElementById('dpPDULabel').style.setProperty('--dp-color', color);
+  document.getElementById('dpStackLabel').style.setProperty('--dp-color', color);
+}
+
+// Render header stack helper
+function renderHeaderStack(currentLayerId, isDecap, steps) {
+  const stackEl = document.getElementById('dpHeaderStack');
+  stackEl.innerHTML = '';
+
+  const payload = document.createElement('div');
+  payload.className = 'header-block';
+  payload.style.cssText = `background:rgba(127,140,141,0.12);border-color:rgba(127,140,141,0.3);color:#7F8C8D;font-size:10.5px`;
+  payload.textContent = '[ Original Data / Payload ]';
+
+  if (!isDecap) {
+    const added = steps.filter(s => s.layer >= currentLayerId);
+    added.sort((a, b) => b.layer - a.layer);
+    added.forEach(s => {
+      const h = HEADER_LABELS[s.layer];
+      const block = document.createElement('div');
+      block.className = 'header-block' + (s.layer === currentLayerId ? ' current' : '');
+      block.style.cssText = `background:${h.color}18;border-color:${h.color}55;color:${h.color}`;
+      block.textContent = (s.layer === currentLayerId ? '▶ ' : '  ') + `L${s.layer}: ${h.text}`;
+      stackEl.appendChild(block);
+    });
+  } else {
+    const remaining = steps.filter(s => s.layer >= currentLayerId);
+    remaining.sort((a, b) => b.layer - a.layer);
+    remaining.forEach(s => {
+      const h = HEADER_LABELS[s.layer];
+      const block = document.createElement('div');
+      block.className = 'header-block' + (s.layer === currentLayerId ? ' current' : '');
+      block.style.cssText = `background:${h.color}18;border-color:${s.layer === currentLayerId ? h.color : h.color+'44'};color:${s.layer === currentLayerId ? h.color : h.color+'88'}`;
+      block.textContent = (s.layer === currentLayerId ? '✂ ' : '  ') + `L${s.layer}: ${h.text}`;
+      stackEl.appendChild(block);
+    });
+  }
+  stackEl.appendChild(payload);
+}
+
+// Stepper event listeners
+document.getElementById('stepNextBtn').addEventListener('click', () => {
+  if (currentJourneyStep < TOTAL_JOURNEY_STEPS) {
+    renderJourneyStep(currentJourneyStep + 1);
+  }
+});
+
+document.getElementById('stepPrevBtn').addEventListener('click', () => {
+  if (currentJourneyStep > 0) {
+    renderJourneyStep(currentJourneyStep - 1);
+  }
+});
+
+document.getElementById('stepResetBtn').addEventListener('click', () => {
+  renderJourneyStep(0);
+});
+
+document.getElementById('trafficSelect').addEventListener('change', () => {
+  renderJourneyStep(0);
+});
+
+// Optional keyboard arrows navigation when looking at journey tab
+document.addEventListener('keydown', (e) => {
+  const journeyView = document.getElementById('view-journey');
+  if (journeyView && journeyView.classList.contains('active')) {
+    if (e.key === 'ArrowRight' && currentJourneyStep < TOTAL_JOURNEY_STEPS) {
+      renderJourneyStep(currentJourneyStep + 1);
+    } else if (e.key === 'ArrowLeft' && currentJourneyStep > 0) {
+      renderJourneyStep(currentJourneyStep - 1);
+    }
+  }
+});
+
+// Initialize step 0 immediately
+renderJourneyStep(0);
+
+// ─────────────────────────────────────────
+// QUIZ
+// ─────────────────────────────────────────
+let quizPool = [], currentQ = 0, totalQ = 0, correctCount = 0, selectedLayer = 'all';
+
+function initQuiz() {
+  quizPool = [...QUIZ_QUESTIONS];
+  if (selectedLayer !== 'all') quizPool = quizPool.filter(q => q.layer === parseInt(selectedLayer));
+  quizPool = quizPool.sort(() => Math.random() - 0.5);
+  currentQ = 0; correctCount = 0; totalQ = quizPool.length;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const card = document.getElementById('quizCard');
+  if (currentQ >= totalQ) { renderScore(); return; }
+  const q     = quizPool[currentQ];
+  const layer = OSI_LAYERS.find(l => l.id === q.layer);
+  const pct   = ((currentQ / totalQ) * 100).toFixed(0);
+
+  card.innerHTML = `
+    <div class="quiz-progress">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
+      <div class="quiz-counter">${currentQ + 1} / ${totalQ}</div>
+    </div>
+    <div class="quiz-layer-tag" style="background:${layer.color}">${layer.emoji} Layer ${layer.id}: ${layer.name}</div>
+    <div class="quiz-question">${q.question}</div>
+    <div class="quiz-options">
+      ${q.options.map((opt, i) => `
+        <button class="quiz-option" onclick="selectAnswer(${i})">
+          <span class="opt-letter">${String.fromCharCode(65+i)}.</span>
+          <span>${opt}</span>
+        </button>`).join('')}
+    </div>
+    <div class="quiz-explanation" id="quizExp"></div>
+    <button class="quiz-next-btn" id="nextBtn" onclick="nextQuestion()">
+      ${currentQ + 1 < totalQ ? 'Next Question →' : 'See Results →'}
+    </button>
+  `;
+}
+
+function selectAnswer(idx) {
+  const q = quizPool[currentQ];
+  const isCorrect = idx === q.answer;
+  if (isCorrect) correctCount++;
+
+  document.querySelectorAll('.quiz-option').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer)              btn.classList.add('correct');
+    else if (i === idx && !isCorrect) btn.classList.add('wrong');
+  });
+
+  const exp = document.getElementById('quizExp');
+  exp.classList.add('show');
+  if (!isCorrect) exp.classList.add('wrong-exp');
+  exp.innerHTML = `<div class="exp-label">${isCorrect ? '✓ Correct' : '✗ Incorrect'}</div>${q.explanation}`;
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function nextQuestion() { currentQ++; renderQuestion(); }
+
+function renderScore() {
+  const card = document.getElementById('quizCard');
+  const pct  = Math.round((correctCount / totalQ) * 100);
+  let emoji = '📡', msg = 'Keep studying — review the layers you missed.';
+  if (pct >= 90) { emoji = '🏆'; msg = 'Outstanding! You have strong OSI fundamentals.'; }
+  else if (pct >= 75) { emoji = '🎯'; msg = 'Great work — solid grasp of the OSI model!'; }
+  else if (pct >= 50) { emoji = '📚'; msg = 'Good progress — revisit the layers you struggled with.'; }
+
+  card.innerHTML = `
+    <div class="quiz-score">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-number">${pct}%</div>
+      <div class="score-label">${correctCount} / ${totalQ} correct</div>
+      <div class="score-message">${msg}</div>
+      <button class="restart-btn" onclick="initQuiz()">↺ Try Again</button>
+    </div>
+  `;
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedLayer = btn.dataset.layer;
+    initQuiz();
+  });
+});
+
+initQuiz();
+</script>
+</body>
+</html>
