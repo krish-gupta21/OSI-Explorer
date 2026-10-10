@@ -6,6 +6,13 @@ Explore protocols, hardware devices, threat vectors, attack mechanisms, and defe
 
 ---
 
+## 🔗 Live Demo
+
+Experience the live application here:  
+👉 **[https://krish-gupta21.github.io/OSI-Explorer/](https://krish-gupta21.github.io/OSI-Explorer/)**
+
+---
+
 ## ✨ Features
 
 - **⬡ Interactive Layer Stack**:
@@ -26,19 +33,6 @@ Explore protocols, hardware devices, threat vectors, attack mechanisms, and defe
 - **◈ Casual Quiz & Knowledge Checks**:
   - 25 scenario-based questions with instant explanations.
   - Filter by individual layers or test all layers at once.
-
-- **🎨 Modern Security UI**:
-  - Terminal/cyber dot-grid aesthetic with glowing indicators.
-  - Full Dark Mode / Light Mode toggle.
-  - Pure client-side static web application (zero dependencies, zero build steps).
-
----
-
-## 🚀 Quick Start (Local Run)
-
-Simply open `index.html` in any modern web browser:
-- Double-click `index.html`, or
-- Right-click and choose **Open with > Chrome / Firefox / Edge**.
 
 ---
 
